@@ -1,0 +1,25 @@
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+
+<suite verbose="1" name="Testing full stack QA" annotations="JDK">
+    <listeners>
+        <listener class-name="tools.ScreenshotListener" />
+    </listeners>
+    <test name="global">
+        <classes>
+            <class name="globals.Globals"/>
+        </classes>
+    </test>
+
+    <test name="Test home page">
+        <classes>
+            <class name="ui.tests.TestHomePage"/>
+        </classes>
+    </test>
+
+    <test name="Test sign up">
+        <classes>
+            <class name="ui.tests.TestSignUp"/>
+        </classes>
+    </test>
+
+</suite>
