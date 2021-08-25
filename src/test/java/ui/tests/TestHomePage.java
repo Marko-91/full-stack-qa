@@ -14,6 +14,7 @@ import static globals.Globals.webDriver;
 public class TestHomePage {
     @Test
     public void testHomePage() {
+        //TODO: Report bug links now working
         WebElement userNameInput =
                 WebPageHelper.getWebElement(webDriver, Home.userNameInput);
         WebElement pwdInput =

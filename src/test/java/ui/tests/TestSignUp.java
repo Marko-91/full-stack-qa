@@ -6,6 +6,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import org.testng.Reporter;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import tools.DelayManager;
 import tools.WebPageHelper;
@@ -16,8 +17,8 @@ import static tools.EmailHelper.getRandomEmail;
 
 public class TestSignUp {
 
-    @Test
-    public void testSignUpE2E() {
+    @Test(dataProvider = "dataFeed")
+    public void testSignUpE2E(String userName, String password) {
         Globals.webDriver.get(Globals.endpoint + "signup");
         DelayManager.sleep(5000);
 
@@ -40,11 +41,11 @@ public class TestSignUp {
         DelayManager.sleep(5000);
 
         String firstName = Globals.faker.name().firstName();
-        inputFirstName.sendKeys(firstName);
+        inputFirstName.sendKeys(userName);
         inputFirstName2.sendKeys(firstName);
         inputLastName.sendKeys(Globals.faker.name().lastName());
         inputEmail.sendKeys(getRandomEmail(firstName));
-        inputPwd.sendKeys(Globals.faker.harryPotter().quote());
+        inputPwd.sendKeys(password);
         inputMobile.sendKeys(Globals.faker.phoneNumber().cellPhone());
         buttonSignIn.click();
 
@@ -57,5 +58,15 @@ public class TestSignUp {
 
         Reporter.log("Asserting...");
         Assert.assertTrue(isWelcomeMessagePresent);
+    }
+
+    @DataProvider(name = "dataFeed")
+    public Object[][] dataFeed() {
+        return new Object[][] {
+                { "Marko", "marko123" },
+                { "Dusan", "dusan123" },
+                { "Milan", "milan123" }
+        };
+
     }
 }

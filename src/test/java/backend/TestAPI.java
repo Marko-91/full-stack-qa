@@ -5,6 +5,9 @@ import globals.Globals;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
+import org.apache.http.HttpStatus;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.simple.JSONObject;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -12,10 +15,24 @@ import org.testng.annotations.Test;
 import java.util.HashMap;
 import java.util.Map;
 
+import static io.restassured.RestAssured.given;
+import static io.restassured.RestAssured.put;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.notNullValue;
+import static tools.EmailHelper.printData;
+
 public class TestAPI {
+    private static final Logger LOG = LogManager.getLogger(TestAPI.class);
+
+
+    /**
+     * TODO
+     */
     @Test
-    public void test() {
-        //HttpRequestHelper.getResponseBody(Globals.endpoint + "users/" + Faker.instance().name().firstName());
+    public void testCreateNewUserResponseData() {
+        //TODO: Report last name not correctly stored in DB
+        System.out.println("Step 1: Create user information");
         Map<String, String> userInfo = new HashMap<String, String>() {{
             put("firstName", Faker.instance().name().firstName());
             put("lastName", Faker.instance().name().lastName());
@@ -23,27 +40,229 @@ public class TestAPI {
             put("username", Faker.instance().name().username());
         }};
 
-        RequestSpecification request = RestAssured.given();
+        printData(userInfo);
+
+        System.out.println("Step 2: Send request with user payload to server");
 
         JSONObject requestParams = new JSONObject();
         requestParams.put("firstName", userInfo.get("firstName"));
         requestParams.put("lastName", userInfo.get("lastName"));
-        //requestParams.put("password", userInfo.get("password"));
+        requestParams.put("password", userInfo.get("password"));
         requestParams.put("username", userInfo.get("username"));
-        // Add a header stating the Request body is a JSON
-        request.header("Content-Type", "application/json");
 
-        // Add the Json to the body of the request
-        request.body(requestParams.toJSONString());
 
-        // Post the request and check the response
-        Response response = request.put(Globals.endpoint + "users/register");
+        System.out.println("Step 3: Check server response data");
+        String response = given()
+                .header("Content-Type", "application/json")
+                .body(requestParams.toJSONString())
+                .put(Globals.endpoint + "users/register")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.SC_CREATED)
+                .body("username", equalTo(userInfo.get("username")))
+                .body("lastName", equalTo(userInfo.get("lastName")))
+                .body("firstName", equalTo(userInfo.get("firstName")))
+                .extract().asString();
 
-        int statusCode = response.getStatusCode();
-        Assert.assertEquals(statusCode, 201, "The status code should be equal to 201.");
-        String successCode = response.jsonPath().get("SuccessCode");
-        //Assert.assertEquals(successCode, "OPERATION_SUCCESS");
+        System.out.println(response); //BUG FOUND last name is counted as first
+    }
 
-        System.out.println("Program finished");
+    /**
+     * TODO
+     */
+    @Test
+    public void testGetUser() {
+        //TODO: Report last name not correctly stored in DB
+        System.out.println("Step 1: Create user information");
+        Map<String, String> userInfo = new HashMap<String, String>() {{
+            put("firstName", Faker.instance().name().firstName());
+            put("lastName", Faker.instance().name().lastName());
+            put("password", Faker.instance().harryPotter().quote());
+            put("username", Faker.instance().name().username());
+        }};
+
+        printData(userInfo);
+
+        System.out.println("Step 2: Send request with user payload to server");
+
+        JSONObject requestParams = new JSONObject();
+        requestParams.put("firstName", userInfo.get("firstName"));
+        requestParams.put("lastName", userInfo.get("lastName"));
+        requestParams.put("password", userInfo.get("password"));
+        requestParams.put("username", userInfo.get("username"));
+
+
+        System.out.println("Step 3: Check server response data");
+        String response = given()
+                .header("Content-Type", "application/json")
+                .body(requestParams.toJSONString())
+                .put(Globals.endpoint + "users/register")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.SC_CREATED)
+                .body("username", equalTo(userInfo.get("username")))
+                .body("lastName", equalTo(userInfo.get("lastName")))
+                .body("username", equalTo(userInfo.get("username")))
+                //.body("firstName", equalTo(userInfo.get("firstName")))
+                .extract().asString();
+
+        System.out.println(response); //BUG FOUND last name is counted as first
+
+        response = given()
+                .header("Content-Type", "application/json")
+                .body(requestParams.toJSONString())
+                .get(Globals.endpoint + "users/" + userInfo.get("username"))
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.SC_OK)
+                .extract().asString();
+
+        System.out.println(response);
+    }
+
+    /**
+     * TODO
+     */
+    @Test
+    public void testCreateNewUserWithIncompleteDataShouldFail() {
+        System.out.println("Step 1: Create user information");
+        Map<String, String> userInfo = new HashMap<String, String>() {{
+            put("firstName", Faker.instance().name().firstName());
+            put("lastName", Faker.instance().name().lastName());
+            put("password", Faker.instance().harryPotter().quote());
+            put("username", Faker.instance().name().username());
+        }};
+
+        System.out.println("Step 2: Send incomplete request with user payload to server");
+
+        JSONObject requestParams = new JSONObject();
+        requestParams.put("firstName", userInfo.get("firstName"));
+        requestParams.put("lastName", userInfo.get("lastName"));
+        requestParams.put("username", userInfo.get("username"));
+
+
+        System.out.println("Step 3: Check server response data");
+        String response = given()
+                .header("Content-Type", "application/json")
+                .body(requestParams.toJSONString())
+                .put(Globals.endpoint + "users/register")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.SC_INTERNAL_SERVER_ERROR)
+                .extract().asString();
+
+        System.out.println(response);
+
+    }
+
+    @Test
+    public void testCreateAndDeleteUser() {
+        //TODO: Report last name not correctly stored in DB
+        System.out.println("Step 1: Create user information");
+        Map<String, String> userInfo = new HashMap<String, String>() {{
+            put("firstName", Faker.instance().name().firstName());
+            put("lastName", Faker.instance().name().lastName());
+            put("password", Faker.instance().harryPotter().quote());
+            put("username", Faker.instance().name().username());
+        }};
+
+        printData(userInfo);
+
+        System.out.println("Step 2: Send request with user payload to server");
+
+        JSONObject requestParams = new JSONObject();
+        requestParams.put("firstName", userInfo.get("firstName"));
+        requestParams.put("lastName", userInfo.get("lastName"));
+        requestParams.put("password", userInfo.get("password"));
+        requestParams.put("username", userInfo.get("username"));
+
+
+        System.out.println("Step 3: Check server response data");
+        String response = given()
+                .header("Content-Type", "application/json")
+                .body(requestParams.toJSONString())
+                .put(Globals.endpoint + "users/register")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.SC_CREATED)
+                .extract().asString();
+
+        System.out.println(response); //BUG FOUND last name is counted as first
+
+        response = given()
+                .header("Content-Type", "application/json")
+                .body(requestParams.toJSONString())
+                .delete(Globals.endpoint + "users/" + userInfo.get("username"))
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.SC_OK)
+                .extract().asString();
+
+        assertThat("Response should contain removed message",
+                response.contains("User with username " + userInfo.get("username") + " is removed"));
+        System.out.println(response);
+    }
+
+    @Test
+    public void testDeleteAllUsers() {
+        //TODO: Report last name not correctly stored in DB
+
+
+        String response = given()
+                .header("Content-Type", "application/json")
+                .delete(Globals.endpoint + "users/deleteAllUsers")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.SC_OK)
+                .extract().asString();
+
+        assertThat("Response should contain all removed message",
+                response.contains("All users removed"));
+        System.out.println(response);
+    }
+
+    @Test
+    public void testLoginUser() {
+        //TODO: Report last name not correctly stored in DB
+        System.out.println("Step 1: Create user information");
+        Map<String, String> userInfo = new HashMap<String, String>() {{
+            put("firstName", Faker.instance().name().firstName());
+            put("lastName", Faker.instance().name().lastName());
+            put("password", Faker.instance().harryPotter().quote());
+            put("username", Faker.instance().name().username());
+        }};
+
+        printData(userInfo);
+
+        System.out.println("Step 2: Send request with user payload to server");
+
+        JSONObject requestParams = new JSONObject();
+        requestParams.put("firstName", userInfo.get("firstName"));
+        requestParams.put("lastName", userInfo.get("lastName"));
+        requestParams.put("password", userInfo.get("password"));
+        requestParams.put("username", userInfo.get("username"));
+
+
+        System.out.println("Step 3: Check server response data");
+        given()
+                .header("Content-Type", "application/json")
+                .body(requestParams.toJSONString())
+                .put(Globals.endpoint + "users/register")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.SC_CREATED)
+                .extract().asString();
+
+
+        String response = given()
+                .header("Content-Type", "application/json")
+                .body(requestParams.toJSONString())
+                .post(Globals.endpoint + "users/login")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.SC_OK)
+                .extract().asString();
+
+        System.out.println(response);
     }
 }
