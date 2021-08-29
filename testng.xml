@@ -3,6 +3,8 @@
 <suite verbose="1" name="Testing full stack QA" annotations="JDK">
     <listeners>
         <listener class-name="tools.ScreenshotListener" />
+        <listener class-name="org.testng.reporters.EmailableReporter" />
+        <listener class-name="org.testng.reporters.FailedReporter" />
     </listeners>
     <test name="global">
         <classes>
