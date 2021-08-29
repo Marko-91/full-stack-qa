@@ -9,6 +9,7 @@ import org.testng.annotations.BeforeSuite;
 
 import java.awt.AWTException;
 import java.awt.Robot;
+import java.util.concurrent.TimeUnit;
 
 public class Globals {
     public static WebDriver webDriver;
@@ -29,6 +30,7 @@ public class Globals {
         faker = new Faker();
         Globals.webDriver.get(Globals.endpoint);
         Globals.webDriver.manage().window().maximize();
+        webDriver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
     }
 
     @AfterSuite

@@ -2,6 +2,7 @@ package ui.tests;
 
 import globals.Globals;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.annotations.Test;
 import tools.DelayManager;
 import tools.WebPageHelper;
@@ -10,6 +11,7 @@ import ui.pages.Home;
 import java.util.concurrent.TimeUnit;
 
 import static globals.Globals.webDriver;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class TestHomePage {
     @Test
@@ -33,5 +35,25 @@ public class TestHomePage {
         btnLogin.click();
         webDriver.manage().timeouts().implicitlyWait(1, TimeUnit.SECONDS);
         DelayManager.sleep(1000);
+    }
+
+    @Test
+    public void testFacebookLink() {
+        WebElement facebookLogin =
+                WebPageHelper.getWebElement(webDriver, Home.facebookLogin);
+        facebookLogin.click();
+        DelayManager.sleep(10000);
+        assertThat("The facebook link should redirect successfully",
+                Globals.webDriver.getCurrentUrl().equals("https://www.facebook.com/"));
+    }
+
+    @Test
+    public void testTwitterLink() {
+        WebElement facebookLogin =
+                WebPageHelper.getWebElement(webDriver, Home.twitterLogin);
+        facebookLogin.click();
+        DelayManager.sleep(10000);
+        assertThat("The facebook link should redirect successfully",
+                Globals.webDriver.getCurrentUrl().equals("https://twitter.com/"));
     }
 }
