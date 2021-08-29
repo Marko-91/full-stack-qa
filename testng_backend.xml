@@ -1,0 +1,15 @@
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+
+<suite verbose="1" name="Testing full stack QA" thread-count="10" parallel="methods" annotations="JDK" configfailurepolicy="continue">
+    <test name="Test CRUD">
+        <classes>
+            <class name="backend.crud.Put"/>
+            <class name="backend.crud.Get"/>
+            <class name="backend.crud.Delete"/>
+            <class name="backend.crud.Create"/>
+            <class name="backend.Login"/>
+        </classes>
+    </test>
+
+
+</suite>
