@@ -13,7 +13,7 @@ import tools.WebPageHelper;
 import ui.pages.SignUp;
 
 import static globals.Globals.webDriver;
-import static tools.EmailHelper.getRandomEmail;
+import static tools.UserHelper.getRandomEmail;
 
 public class TestSignUp {
 
@@ -43,6 +43,7 @@ public class TestSignUp {
         String firstName = Globals.faker.name().firstName();
         inputFirstName.sendKeys(userName);
         inputFirstName2.sendKeys(firstName);
+        Assert.fail();
         inputLastName.sendKeys(Globals.faker.name().lastName());
         inputEmail.sendKeys(getRandomEmail(firstName));
         inputPwd.sendKeys(password);
