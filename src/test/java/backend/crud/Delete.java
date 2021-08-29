@@ -1,42 +1,46 @@
 package backend.crud;
 
-import com.github.javafaker.Faker;
+import backend.Login;
 import globals.Globals;
 import org.apache.http.HttpStatus;
 import org.json.simple.JSONObject;
 import org.testng.annotations.Test;
+import tools.User;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static tools.EmailHelper.printData;
+import static tools.UserHelper.createUser;
+import static tools.UserHelper.printData;
 
 public class Delete {
+    private static final Logger log = Logger.getLogger(Login.class.getName());
+
+    /**
+     * This test validates creating user, then deleting the same user from data base.
+     *
+     * Test steps:
+     * 1. Create user information as payload
+     * 2. Register a user and assert that user is registered
+     * 3. Delete user that was created
+     * 4. Assert that server response contains the relevant message
+     */
     @Test
     public void testCreateAndDeleteUser() {
-        //TODO: Report last name not correctly stored in DB
-        System.out.println("Step 1: Create user information");
-        Map<String, String> userInfo = new HashMap<String, String>() {{
-            put("firstName", Faker.instance().name().firstName());
-            put("lastName", Faker.instance().name().lastName());
-            put("password", Faker.instance().harryPotter().quote());
-            put("username", Faker.instance().name().username());
-        }};
-
+        log.info("Step 1: Create user information as payload");
+        Map<String, String> userInfo = createUser();
         printData(userInfo);
 
-        System.out.println("Step 2: Send request with user payload to server");
-
+        log.info("Step 2: Register a user to the application and assert that user is registered");
         JSONObject requestParams = new JSONObject();
-        requestParams.put("firstName", userInfo.get("firstName"));
-        requestParams.put("lastName", userInfo.get("lastName"));
-        requestParams.put("password", userInfo.get("password"));
-        requestParams.put("username", userInfo.get("username"));
+        requestParams.put(User.FIRSTNAME.getName(), userInfo.get(User.FIRSTNAME.getName()));
+        requestParams.put(User.LASTNAME.getName(), userInfo.get(User.LASTNAME.getName()));
+        requestParams.put(User.PASSWORD.getName(), userInfo.get(User.PASSWORD.getName()));
+        requestParams.put(User.USERNAME.getName(), userInfo.get(User.USERNAME.getName()));
+        printData(userInfo);
 
-
-        System.out.println("Step 3: Check server response data");
         String response = given()
                 .header("Content-Type", "application/json")
                 .body(requestParams.toJSONString())
@@ -63,9 +67,10 @@ public class Delete {
     }
 
     @Test
+    /**
+     * This test validates sanity usage of deleting all users in DB
+     */
     public void testDeleteAllUsers() {
-        //TODO: Report last name not correctly stored in DB
-
 
         String response = given()
                 .header("Content-Type", "application/json")
