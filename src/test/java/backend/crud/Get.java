@@ -46,7 +46,6 @@ public class Get {
                 .then()
                 .assertThat()
                 .statusCode(HttpStatus.SC_CREATED)
-                .body("password", equalTo(userInfo.get(User.PASSWORD.getName())))
                 .body("lastName", equalTo(userInfo.get(User.LASTNAME.getName())))
                 .body("username", equalTo(userInfo.get(User.USERNAME.getName())))
                 .body("firstName", equalTo(userInfo.get(User.FIRSTNAME.getName())))

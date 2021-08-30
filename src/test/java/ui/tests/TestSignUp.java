@@ -1,20 +1,27 @@
 package ui.tests;
 
 import backend.Login;
+import com.github.javafaker.Faker;
 import globals.Globals;
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import tools.DelayManager;
 import tools.WebPageHelper;
 import ui.pages.Home;
 import ui.pages.SignUp;
 
+import java.awt.*;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
+import static globals.Globals.PATH;
 import static globals.Globals.webDriver;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static tools.UserHelper.getRandomEmail;
@@ -146,10 +153,26 @@ public class TestSignUp {
         DelayManager.sleep(5000);
 
         log.info("Assert that user is redirected to dashboard");
-        WebElement homeElement = webDriver.findElement(By.xpath("//a[contains(text(),'HOME')]"));
-        Boolean home =
-                wait.until(ExpectedConditions.textToBePresentInElement(homeElement,
-                        "HOME"));
-        assertThat("User dashboard should contain home", home);
+        WebElement homeElement = WebPageHelper.getWebElement(webDriver, SignUp.welcome);
+        System.out.println(homeElement.getText());
+        assertThat("User dashboard should contain home", homeElement.getText().equals("Return to Login Form"));
+    }
+
+    @BeforeMethod
+    public void init() throws AWTException {
+        System.out.println("init scripts");
+        webDriver = new ChromeDriver();
+        System.setProperty(Globals.driver, PATH);
+        Globals.action = new Actions(Globals.webDriver);
+        Globals.faker = new Faker();
+        Globals.webDriver.get(Globals.endpoint);
+        Globals.webDriver.manage().window().maximize();
+        webDriver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+    }
+
+    @AfterMethod
+    public void close() {
+        System.out.println("close web driver");
+        Globals.webDriver.close();
     }
 }
