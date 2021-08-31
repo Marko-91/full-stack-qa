@@ -27,7 +27,7 @@ public class UserHelper {
     }
 
     public static String getRandomEmail(String firstName) {
-        return firstName + getRandomNumber(999999999) + "@gmail.com";
+        return firstName + "@gmail.com";
     }
 
     public static int getRandomNumber(int in_maxNumber) {

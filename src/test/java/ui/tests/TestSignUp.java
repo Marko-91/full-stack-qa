@@ -92,6 +92,7 @@ public class TestSignUp {
      * 2. Input sign up parameters
      * 3. Assert that user is created
      * 4. Assert that welcome message is present
+     * 5. Go to login page and try to login as create user
      * 5. Assert that user is redirected to dashboard
      */
     @Test
@@ -120,13 +121,16 @@ public class TestSignUp {
 
         log.info("Input sign up parameters");
         String firstName = Globals.faker.name().firstName();
-        inputFirstName.sendKeys(Globals.faker.name().username());
-        inputFirstName2.sendKeys(firstName);
-        inputLastName.sendKeys(Globals.faker.name().lastName());
-        inputEmail.sendKeys(getRandomEmail(firstName));
+        inputFirstName.sendKeys(firstName);
+
         String userName = Globals.faker.name().username();
+        inputFirstName2.sendKeys(userName);
+        String lastName = Globals.faker.name().lastName();
+        inputLastName.sendKeys(Globals.faker.name().lastName());
+        String email = getRandomEmail(lastName);
+        inputEmail.sendKeys(email);
         String pwd = Globals.faker.name().username();
-        inputPwd.sendKeys(Globals.faker.name().username());
+        inputPwd.sendKeys(pwd);
         inputMobile.sendKeys(Globals.faker.phoneNumber().cellPhone());
         buttonSignIn.click();
 
@@ -138,24 +142,27 @@ public class TestSignUp {
                 wait.until(ExpectedConditions.textToBePresentInElement(welcomeMessage,
                         "User has been successfully registered."));
 
+        DelayManager.sleep(5000);
         log.info("Assert that welcome message is present");
         Assert.assertTrue(isWelcomeMessagePresent);
+        WebElement homeBack = WebPageHelper.getWebElementByTag(webDriver ,"a");
+        homeBack.click();
         Globals.webDriver.get(Globals.endpoint + "login");
         WebElement userNameLogin =
                 WebPageHelper.getWebElement(webDriver, SignUp.loginUserName);
         WebElement userNamePwd =
                 WebPageHelper.getWebElement(webDriver, SignUp.loginPwd);
 
-        userNameLogin.sendKeys(userName);
+        userNameLogin.sendKeys(lastName);
         userNamePwd.sendKeys(pwd);
         WebElement loginLoginBtn = WebPageHelper.getWebElement(webDriver, Home.loginLoginBtw);
+        DelayManager.sleep(5000);
         loginLoginBtn.click();
         DelayManager.sleep(5000);
 
         log.info("Assert that user is redirected to dashboard");
         WebElement homeElement = WebPageHelper.getWebElement(webDriver, SignUp.welcome);
-        System.out.println(homeElement.getText());
-        assertThat("User dashboard should contain home", homeElement.getText().equals("Return to Login Form"));
+        assertThat("User dashboard should contain home", homeElement.getText().equals("HOME"));
     }
 
     @BeforeMethod
